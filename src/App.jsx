@@ -48,7 +48,7 @@ function AppContent() {
     testConnection().then(result => {
       setApiStatus(result);
       if (result.success) {
-        console.log('✅ API Connected:', result.competitions.length, 'competitions available');
+        console.log('✅', result.message);
       } else {
         console.error('❌ API Error:', result.error);
       }

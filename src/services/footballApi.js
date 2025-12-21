@@ -257,10 +257,12 @@ export async function getMatchPredictionData(match, competitionCode) {
 
 /**
  * Test API connection
+ * Uses Bundesliga matches endpoint (free tier accessible)
  */
 export async function testConnection() {
   try {
-    const response = await fetch(`${API_BASE}/competitions`, {
+    // Test with a known free-tier endpoint
+    const response = await fetch(`${API_BASE}/competitions/BL1/matches?status=SCHEDULED&limit=1`, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -274,10 +276,10 @@ export async function testConnection() {
       };
     }
 
-    const data = await response.json();
+    await response.json(); // Consume response
     return {
       success: true,
-      competitions: data.competitions || []
+      message: 'API Connected - Free tier access confirmed'
     };
   } catch (error) {
     return {
