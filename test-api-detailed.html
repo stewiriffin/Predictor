@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Test - Detailed</title>
+  <style>
+    body {
+      font-family: monospace;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #0ff;
+    }
+    .test { margin: 20px 0; padding: 10px; border: 1px solid #333; }
+    .success { border-color: #0f0; }
+    .error { border-color: #f00; color: #f00; }
+    pre { background: #000; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>API Endpoint Tests</h1>
+  <div id="results"></div>
+
+  <script>
+    const API_KEY = 'a15ea7a587604d05ac0b416b5d51ffa4';
+    const API_BASE = 'https://api.football-data.org/v4';
+
+    async function testEndpoint(name, url) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test';
+      resultDiv.innerHTML = `<h3>Testing: ${name}</h3><p>URL: ${url}</p>`;
+      document.getElementById('results').appendChild(resultDiv);
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'X-Auth-Token': API_KEY
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          resultDiv.classList.add('success');
+          resultDiv.innerHTML += `<p>✅ SUCCESS (${response.status})</p>`;
+          resultDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2).substring(0, 500)}...</pre>`;
+        } else {
+          resultDiv.classList.add('error');
+          resultDiv.innerHTML += `<p>❌ FAILED (${response.status})</p>`;
+          resultDiv.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }
+      } catch (error) {
+        resultDiv.classList.add('error');
+        resultDiv.innerHTML += `<p>❌ ERROR: ${error.message}</p>`;
+      }
+    }
+
+    async function runTests() {
+      // Test 1: Competitions list
+      await testEndpoint('Competitions List', `${API_BASE}/competitions`);
+
+      // Test 2: Bundesliga matches
+      await testEndpoint('Bundesliga Matches', `${API_BASE}/competitions/BL1/matches`);
+
+      // Test 3: Bundesliga standings
+      await testEndpoint('Bundesliga Standings', `${API_BASE}/competitions/BL1/standings`);
+
+      // Test 4: Team matches (Bayern Munich)
+      await testEndpoint('Team Matches (Bayern)', `${API_BASE}/teams/5/matches?status=FINISHED&limit=5`);
+
+      // Test 5: Specific match
+      await testEndpoint('Specific Match', `${API_BASE}/matches/1`);
+    }
+
+    runTests();
+  </script>
+</body>
+</html>

@@ -163,29 +163,54 @@ function parseForm(form) {
 }
 
 /**
+ * Create fallback team stats when API data is unavailable
+ */
+function createFallbackStats(team) {
+  return {
+    name: team.name,
+    position: 10,
+    playedGames: 15,
+    won: 7,
+    draw: 4,
+    lost: 4,
+    points: 25,
+    goalsFor: 22,
+    goalsAgainst: 18,
+    goalDifference: 4,
+    form: 'WDLWW',
+    goalsScored: 22,
+    goalsConceded: 18,
+    matchesPlayed: 15,
+    recentForm: ['win', 'win', 'loss', 'draw', 'win']
+  };
+}
+
+/**
  * Fetch comprehensive match prediction data
  * This includes standings, team stats, recent matches, and league averages
+ * Falls back to estimated data if API tier doesn't allow access
  */
 export async function getMatchPredictionData(match, competitionCode) {
   const homeTeamId = match.homeTeam.id;
   const awayTeamId = match.awayTeam.id;
 
+  let homeStats = null;
+  let awayStats = null;
+  let leagueAverage = 1.5;
+  let homeMatches = [];
+  let awayMatches = [];
+  let usingFallback = false;
+
   try {
-    // Fetch standings
+    // Try to fetch standings
     const standings = await fetchStandings(competitionCode);
 
     // Extract team stats
-    const homeStats = extractTeamStats(standings, homeTeamId);
-    const awayStats = extractTeamStats(standings, awayTeamId);
+    homeStats = extractTeamStats(standings, homeTeamId);
+    awayStats = extractTeamStats(standings, awayTeamId);
 
     // Calculate league average
-    const leagueAverage = calculateLeagueAverage(standings);
-
-    // Fetch recent matches for both teams
-    const [homeMatches, awayMatches] = await Promise.all([
-      fetchTeamMatches(homeTeamId, 5),
-      fetchTeamMatches(awayTeamId, 5)
-    ]);
+    leagueAverage = calculateLeagueAverage(standings);
 
     // Add form data to stats
     if (homeStats && homeStats.form) {
@@ -194,19 +219,40 @@ export async function getMatchPredictionData(match, competitionCode) {
     if (awayStats && awayStats.form) {
       awayStats.recentForm = parseForm(awayStats.form);
     }
-
-    return {
-      match,
-      homeStats,
-      awayStats,
-      leagueAverage,
-      homeMatches,
-      awayMatches
-    };
   } catch (error) {
-    console.error('Error fetching prediction data:', error);
-    throw error;
+    console.warn('Standings not available (API tier restriction), using fallback data:', error.message);
+    usingFallback = true;
   }
+
+  // If standings failed or data missing, use fallback
+  if (!homeStats || !awayStats) {
+    console.warn('Using fallback team statistics');
+    homeStats = homeStats || createFallbackStats(match.homeTeam);
+    awayStats = awayStats || createFallbackStats(match.awayTeam);
+    usingFallback = true;
+  }
+
+  // Try to fetch team matches (optional, don't fail if unavailable)
+  try {
+    const matches = await Promise.all([
+      fetchTeamMatches(homeTeamId, 5).catch(() => []),
+      fetchTeamMatches(awayTeamId, 5).catch(() => [])
+    ]);
+    homeMatches = matches[0];
+    awayMatches = matches[1];
+  } catch (error) {
+    console.warn('Team matches not available:', error.message);
+  }
+
+  return {
+    match,
+    homeStats,
+    awayStats,
+    leagueAverage,
+    homeMatches,
+    awayMatches,
+    usingFallback
+  };
 }
 
 /**
