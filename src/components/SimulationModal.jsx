@@ -136,22 +136,26 @@ const SimulationModal = ({
                     )}
 
                     {/* Recent Form */}
-                    {matchData?.homeMatches && matchData?.awayMatches && (
+                    {(matchData?.homeStats?.form || matchData?.awayStats?.form) && (
                       <div className="bg-cyber-dark/30 rounded-xl p-6 border border-neon-teal/20">
                         <h3 className="text-sm font-bold text-neon-teal mb-4 font-mono">
                           [RECENT FORM]
                         </h3>
                         <div className="space-y-4">
-                          <PerformanceDisplay
-                            teamName={match.homeTeam.name}
-                            matches={matchData.homeMatches}
-                            color="teal"
-                          />
-                          <PerformanceDisplay
-                            teamName={match.awayTeam.name}
-                            matches={matchData.awayMatches}
-                            color="magenta"
-                          />
+                          {matchData.homeStats?.form && (
+                            <PerformanceDisplay
+                              teamName={match.homeTeam.name}
+                              form={matchData.homeStats.form}
+                              color="teal"
+                            />
+                          )}
+                          {matchData.awayStats?.form && (
+                            <PerformanceDisplay
+                              teamName={match.awayTeam.name}
+                              form={matchData.awayStats.form}
+                              color="magenta"
+                            />
+                          )}
                         </div>
                       </div>
                     )}
