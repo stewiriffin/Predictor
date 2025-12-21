@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Wallet } from 'lucide-react';
 import MatchCard from './components/MatchCard';
+import BettingSlip from './components/BettingSlip';
 import { SimulationProvider } from './context/SimulationContext';
+import { BettingProvider, useBetting } from './context/BettingContext';
 import { COMPETITIONS, fetchMatches, testConnection } from './services/footballApi';
 
 /**
@@ -42,6 +45,9 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [apiStatus, setApiStatus] = useState(null);
+  const [bettingSlipOpen, setBettingSlipOpen] = useState(false);
+
+  const { balance, stats } = useBetting();
 
   // Test API connection on mount
   useEffect(() => {
@@ -169,14 +175,30 @@ function AppContent() {
             </motion.div>
           </div>
 
-          {/* API Status */}
-          {apiStatus && (
-            <div className="mt-4">
+          {/* API Status & Wallet Button */}
+          <div className="mt-4 flex items-center justify-between">
+            {apiStatus && (
               <div className={`text-xs font-mono ${apiStatus.success ? 'text-neon-teal' : 'text-red-400'}`}>
                 API_STATUS: {apiStatus.success ? '✅ CONNECTED' : '❌ ' + apiStatus.error}
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Wallet Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setBettingSlipOpen(true)}
+              className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-lg shadow-emerald-500/30 transition-all font-mono border border-emerald-400/50"
+            >
+              <Wallet className="w-4 h-4" />
+              <span>${balance.toFixed(2)}</span>
+              {stats.activeBetsCount > 0 && (
+                <span className="bg-white text-emerald-600 rounded-full px-2 py-0.5 text-xs">
+                  {stats.activeBetsCount}
+                </span>
+              )}
+            </motion.button>
+          </div>
         </div>
       </header>
 
@@ -323,10 +345,10 @@ function AppContent() {
               >
                 Football-Data.org
               </a>
-              {' '}| TECH_STACK: React + Framer-Motion + Recharts + Poisson
+              {' '}| TECH_STACK: React + Framer-Motion + Recharts + Poisson + Value_Betting
             </p>
             <p className="text-gray-500 text-xs">
-              ALGORITHM: Simplified_Poisson_Distribution • USAGE: Educational_Only
+              ALGORITHM: Simplified_Poisson_Distribution • USAGE: Educational_Only • Paper_Trading_Mode
             </p>
             <p className="text-gray-600 text-xs mt-4">
               © 2025 TACTICAL_SIMULATION_ENGINE • Production-Grade_Sports_Analytics
@@ -334,18 +356,23 @@ function AppContent() {
           </div>
         </div>
       </footer>
+
+      {/* Betting Slip Drawer */}
+      <BettingSlip isOpen={bettingSlipOpen} onClose={() => setBettingSlipOpen(false)} />
     </div>
   );
 }
 
 /**
- * Main App Component wrapped with SimulationProvider
+ * Main App Component wrapped with providers
  */
 function App() {
   return (
-    <SimulationProvider>
-      <AppContent />
-    </SimulationProvider>
+    <BettingProvider>
+      <SimulationProvider>
+        <AppContent />
+      </SimulationProvider>
+    </BettingProvider>
   );
 }
 

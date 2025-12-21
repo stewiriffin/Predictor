@@ -33,15 +33,15 @@ const SimulationModal = ({
             className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
           />
 
-          {/* Modal */}
+          {/* Modal - Large Floating Screen */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-4 md:inset-8 z-50 overflow-hidden"
+            exit={{ opacity: 0, scale: 0.95, y: 30 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="fixed inset-2 md:inset-4 lg:inset-6 z-50 overflow-hidden"
           >
-            <div className="h-full bg-gradient-to-br from-cyber-dark via-cyber-slate to-cyber-dark rounded-2xl border-2 border-neon-teal/50 shadow-2xl overflow-hidden flex flex-col">
+            <div className="h-full bg-gradient-to-br from-cyber-dark via-cyber-slate to-cyber-dark rounded-xl md:rounded-2xl border-2 border-neon-teal/50 shadow-2xl shadow-neon-teal/20 overflow-hidden flex flex-col">
 
               {/* Modal Header */}
               <div className="bg-cyber-dark/50 border-b border-neon-teal/30 p-4 flex justify-between items-center">

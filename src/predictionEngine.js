@@ -10,6 +10,8 @@
  * - Maher (1982) "Modelling association football scores"
  */
 
+import { probabilityToDecimal } from './utils/OddsUtils';
+
 /**
  * Calculate factorial for Poisson distribution
  */
@@ -181,10 +183,18 @@ export const predictMatch = (homeTeamStats, awayTeamStats, leagueAverage = 1.5, 
     mods
   );
 
+  // Calculate fair odds from probabilities
+  const fairOdds = {
+    home: probabilityToDecimal(probabilities.homeWin),
+    draw: probabilityToDecimal(probabilities.draw),
+    away: probabilityToDecimal(probabilities.awayWin)
+  };
+
   return {
     homeWin: Math.round(probabilities.homeWin * 10) / 10,
     draw: Math.round(probabilities.draw * 10) / 10,
     awayWin: Math.round(probabilities.awayWin * 10) / 10,
+    fairOdds, // Add fair decimal odds
     expectedGoals: {
       home: Math.round(homeExpectedGoals * 100) / 100,
       away: Math.round(awayExpectedGoals * 100) / 100
