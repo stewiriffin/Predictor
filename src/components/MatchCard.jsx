@@ -8,6 +8,7 @@ import { useSimulation, calculateModifiers } from '../context/SimulationContext'
 import { useBetting } from '../context/BettingContext';
 import { detectValue } from '../utils/OddsUtils';
 import SimulationModal from './SimulationModal';
+import ErrorBoundary from './ErrorBoundary';
 
 /**
  * Skeleton Loader Component - Memoized
@@ -408,15 +409,17 @@ const MatchCard = ({ match, competitionCode }) => {
       </div>
 
       {/* Simulation Modal */}
-      <SimulationModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        match={match}
-        prediction={prediction}
-        matchData={matchData}
-        chartData={chartData}
-        COLORS={COLORS}
-      />
+      <ErrorBoundary onReset={() => setModalOpen(false)}>
+        <SimulationModal
+          isOpen={modalOpen}
+          onClose={() => setModalOpen(false)}
+          match={match}
+          prediction={prediction}
+          matchData={matchData}
+          chartData={chartData}
+          COLORS={COLORS}
+        />
+      </ErrorBoundary>
     </motion.div>
   );
 };

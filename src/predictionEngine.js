@@ -116,6 +116,14 @@ const calculateFormPoints = (form) => {
  * @returns {object} - Complete prediction with insights
  */
 export const predictMatch = (homeTeamStats, awayTeamStats, leagueAverage = 1.5, modifiers = null) => {
+  // DEFENSIVE CODING: Validate inputs
+  if (!homeTeamStats || !awayTeamStats) {
+    throw new Error('Missing team statistics. Cannot generate prediction.');
+  }
+
+  // Ensure league average is valid
+  const safeLeagueAverage = (leagueAverage && leagueAverage > 0) ? leagueAverage : 1.5;
+
   // Default modifiers if none provided
   const defaultModifiers = {
     home: { attackMultiplier: 1.0, defenseMultiplier: 1.0, formWeight: 0.4 },
@@ -124,47 +132,47 @@ export const predictMatch = (homeTeamStats, awayTeamStats, leagueAverage = 1.5, 
 
   const mods = modifiers || defaultModifiers;
 
-  // Extract team statistics
-  const homeGoalsScored = homeTeamStats.goalsScored || 0;
-  const homeGoalsConceded = homeTeamStats.goalsConceded || 0;
-  const homeMatchesPlayed = homeTeamStats.matchesPlayed || 1;
+  // DEFENSIVE CODING: Extract team statistics with fallbacks
+  const homeGoalsScored = homeTeamStats?.goalsScored ?? 0;
+  const homeGoalsConceded = homeTeamStats?.goalsConceded ?? 0;
+  const homeMatchesPlayed = Math.max(1, homeTeamStats?.matchesPlayed ?? 1); // Never 0
 
-  const awayGoalsScored = awayTeamStats.goalsScored || 0;
-  const awayGoalsConceded = awayTeamStats.goalsConceded || 0;
-  const awayMatchesPlayed = awayTeamStats.matchesPlayed || 1;
+  const awayGoalsScored = awayTeamStats?.goalsScored ?? 0;
+  const awayGoalsConceded = awayTeamStats?.goalsConceded ?? 0;
+  const awayMatchesPlayed = Math.max(1, awayTeamStats?.matchesPlayed ?? 1); // Never 0
 
   // Calculate strengths with modifiers
   const homeAttackStrength = calculateAttackStrength(
     homeGoalsScored,
     homeMatchesPlayed,
-    leagueAverage,
+    safeLeagueAverage,
     mods.home.attackMultiplier
   );
 
   const homeDefenseStrength = calculateDefenseStrength(
     homeGoalsConceded,
     homeMatchesPlayed,
-    leagueAverage,
+    safeLeagueAverage,
     mods.home.defenseMultiplier
   );
 
   const awayAttackStrength = calculateAttackStrength(
     awayGoalsScored,
     awayMatchesPlayed,
-    leagueAverage,
+    safeLeagueAverage,
     mods.away.attackMultiplier
   );
 
   const awayDefenseStrength = calculateDefenseStrength(
     awayGoalsConceded,
     awayMatchesPlayed,
-    leagueAverage,
+    safeLeagueAverage,
     mods.away.defenseMultiplier
   );
 
   // Calculate expected goals
-  const homeExpectedGoals = calculateExpectedGoals(homeAttackStrength, awayDefenseStrength, leagueAverage);
-  const awayExpectedGoals = calculateExpectedGoals(awayAttackStrength, homeDefenseStrength, leagueAverage);
+  const homeExpectedGoals = calculateExpectedGoals(homeAttackStrength, awayDefenseStrength, safeLeagueAverage);
+  const awayExpectedGoals = calculateExpectedGoals(awayAttackStrength, homeDefenseStrength, safeLeagueAverage);
 
   // Calculate probabilities
   const probabilities = calculateMatchProbabilities(homeExpectedGoals, awayExpectedGoals);

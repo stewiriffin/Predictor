@@ -5,21 +5,40 @@ import { motion } from 'framer-motion';
  * Horizontal bars growing from center axis comparing key metrics
  */
 const StatBattle = ({ homeTeam, awayTeam, prediction, matchData }) => {
+  // DEFENSIVE CODING: Null safety checks
+  if (!prediction || !homeTeam || !awayTeam) {
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4">
+        <p className="text-red-400 text-sm font-mono">
+          Unable to generate stat battle: Missing prediction or team data
+        </p>
+      </div>
+    );
+  }
+
+  // Safe access with fallbacks
+  const strengths = prediction?.strengths ?? {
+    homeAttack: 1,
+    awayAttack: 1,
+    homeDefense: 1,
+    awayDefense: 1
+  };
+
   // Prepare stat comparisons
   const stats = [
     {
       label: 'ATTACK',
-      home: prediction.strengths.homeAttack * 50, // Scale to 0-100
-      away: prediction.strengths.awayAttack * 50,
-      homeRaw: prediction.strengths.homeAttack,
-      awayRaw: prediction.strengths.awayAttack
+      home: (strengths?.homeAttack ?? 1) * 50, // Scale to 0-100
+      away: (strengths?.awayAttack ?? 1) * 50,
+      homeRaw: strengths?.homeAttack ?? 1,
+      awayRaw: strengths?.awayAttack ?? 1
     },
     {
       label: 'DEFENSE',
-      home: Math.max(0, (2 - prediction.strengths.homeDefense) * 50), // Invert (lower is better)
-      away: Math.max(0, (2 - prediction.strengths.awayDefense) * 50),
-      homeRaw: prediction.strengths.homeDefense,
-      awayRaw: prediction.strengths.awayDefense
+      home: Math.max(0, (2 - (strengths?.homeDefense ?? 1)) * 50), // Invert (lower is better)
+      away: Math.max(0, (2 - (strengths?.awayDefense ?? 1)) * 50),
+      homeRaw: strengths?.homeDefense ?? 1,
+      awayRaw: strengths?.awayDefense ?? 1
     },
     {
       label: 'FORM',
@@ -30,10 +49,10 @@ const StatBattle = ({ homeTeam, awayTeam, prediction, matchData }) => {
     },
     {
       label: 'WIN %',
-      home: prediction.homeWin,
-      away: prediction.awayWin,
-      homeRaw: `${prediction.homeWin.toFixed(1)}%`,
-      awayRaw: `${prediction.awayWin.toFixed(1)}%`
+      home: prediction?.homeWin ?? 33,
+      away: prediction?.awayWin ?? 33,
+      homeRaw: `${(prediction?.homeWin ?? 33).toFixed(1)}%`,
+      awayRaw: `${(prediction?.awayWin ?? 33).toFixed(1)}%`
     }
   ];
 

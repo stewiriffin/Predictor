@@ -6,13 +6,26 @@ import { useMemo } from 'react';
  * Confidence = difference between highest and second-highest probability
  */
 const ConfidenceMeter = ({ prediction }) => {
-  const { homeWin, draw, awayWin } = prediction;
+  // DEFENSIVE CODING: Null safety checks
+  if (!prediction) {
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4">
+        <p className="text-red-400 text-sm font-mono">
+          Unable to generate confidence meter: Missing prediction data
+        </p>
+      </div>
+    );
+  }
+
+  const homeWin = prediction?.homeWin ?? 33;
+  const draw = prediction?.draw ?? 33;
+  const awayWin = prediction?.awayWin ?? 33;
 
   // Calculate confidence
   const confidence = useMemo(() => {
     const probs = [homeWin, draw, awayWin].sort((a, b) => b - a);
-    const highest = probs[0];
-    const secondHighest = probs[1];
+    const highest = probs[0] ?? 33;
+    const secondHighest = probs[1] ?? 33;
     const gap = highest - secondHighest;
 
     // Normalize to 0-100 scale

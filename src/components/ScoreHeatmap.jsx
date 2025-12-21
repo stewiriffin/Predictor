@@ -22,8 +22,19 @@ const poissonProbability = (lambda, k) => {
  * Color-coded grid with golden highlight for most likely score
  */
 const ScoreHeatmap = ({ expectedGoals, maxScore = 4 }) => {
-  const homeExpectedGoals = expectedGoals.home;
-  const awayExpectedGoals = expectedGoals.away;
+  // DEFENSIVE CODING: Null safety checks
+  if (!expectedGoals || typeof expectedGoals !== 'object') {
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4">
+        <p className="text-red-400 text-sm font-mono">
+          Unable to generate score heatmap: Missing expected goals data
+        </p>
+      </div>
+    );
+  }
+
+  const homeExpectedGoals = expectedGoals?.home ?? 1.5;
+  const awayExpectedGoals = expectedGoals?.away ?? 1.5;
 
   // Generate score matrix with probabilities
   const scoreMatrix = useMemo(() => {

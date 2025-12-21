@@ -6,6 +6,17 @@ import { Trophy, Target, AlertCircle, Zap } from 'lucide-react';
  * Shows context-aware verdict with appropriate colors and icons
  */
 const VerdictBadge = ({ prediction, homeTeam, awayTeam }) => {
+  // DEFENSIVE CODING: Null safety checks
+  if (!prediction || !homeTeam || !awayTeam) {
+    return (
+      <div className="bg-red-900/20 border border-red-500/50 rounded-xl p-4">
+        <p className="text-red-400 text-sm font-mono">
+          Unable to generate verdict: Missing prediction or team data
+        </p>
+      </div>
+    );
+  }
+
   const verdict = calculateVerdict(prediction, homeTeam, awayTeam);
 
   const getBadgeStyle = (type) => {
@@ -119,13 +130,20 @@ const VerdictBadge = ({ prediction, homeTeam, awayTeam }) => {
  * Calculate verdict based on prediction data
  */
 const calculateVerdict = (prediction, homeTeam, awayTeam) => {
-  const { homeWin, draw, awayWin, expectedGoals } = prediction;
-  const totalGoals = expectedGoals.home + expectedGoals.away;
-  const homeCleanSheet = expectedGoals.away < 0.5;
-  const awayCleanSheet = expectedGoals.home < 0.5;
+  // DEFENSIVE CODING: Safe destructuring with defaults
+  const homeWin = prediction?.homeWin ?? 33;
+  const draw = prediction?.draw ?? 33;
+  const awayWin = prediction?.awayWin ?? 33;
+  const expectedGoals = prediction?.expectedGoals ?? { home: 1.5, away: 1.5 };
+
+  const totalGoals = (expectedGoals?.home ?? 1.5) + (expectedGoals?.away ?? 1.5);
+  const homeCleanSheet = (expectedGoals?.away ?? 1.5) < 0.5;
+  const awayCleanSheet = (expectedGoals?.home ?? 1.5) < 0.5;
 
   // Determine winner
-  const winner = homeWin > awayWin ? homeTeam.shortName || homeTeam.name : awayTeam.shortName || awayTeam.name;
+  const winner = homeWin > awayWin
+    ? (homeTeam?.shortName || homeTeam?.name || 'Home')
+    : (awayTeam?.shortName || awayTeam?.name || 'Away');
   const maxProb = Math.max(homeWin, draw, awayWin);
 
   // DOMINANT WIN (>60% win probability AND likely clean sheet)
