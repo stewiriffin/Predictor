@@ -1,9 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import SimulationControls from './SimulationControls';
 import PredictionRadar from './PredictionRadar';
 import { PerformanceDisplay } from './PerformanceTrend';
+import ScoreHeatmap from './ScoreHeatmap';
+import StatBattle from './StatBattle';
+import VerdictBadge from './VerdictBadge';
+import ConfidenceMeter from './ConfidenceMeter';
 
 /**
  * Full-Screen Simulation Modal
@@ -70,60 +73,23 @@ const SimulationModal = ({
                   {/* LEFT COLUMN - Predictions & Charts */}
                   <div className="space-y-6">
 
-                    {/* Win Probabilities */}
-                    <div className="bg-cyber-dark/30 rounded-xl p-6 border border-neon-teal/20">
-                      <h3 className="text-sm font-bold text-neon-teal mb-4 font-mono">
-                        [WIN PROBABILITIES]
-                      </h3>
-                      <div className="grid grid-cols-3 gap-3 text-center mb-6">
-                        <div className="bg-neon-teal/10 rounded-lg p-4 border border-neon-teal/30">
-                          <div className="text-3xl font-bold text-neon-teal font-mono">
-                            {prediction.homeWin.toFixed(0)}%
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1 font-mono">HOME</div>
-                        </div>
-                        <div className="bg-yellow-500/10 rounded-lg p-4 border border-yellow-500/30">
-                          <div className="text-3xl font-bold text-yellow-400 font-mono">
-                            {prediction.draw.toFixed(0)}%
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1 font-mono">DRAW</div>
-                        </div>
-                        <div className="bg-neon-magenta/10 rounded-lg p-4 border border-neon-magenta/30">
-                          <div className="text-3xl font-bold text-neon-magenta font-mono">
-                            {prediction.awayWin.toFixed(0)}%
-                          </div>
-                          <div className="text-xs text-gray-400 mt-1 font-mono">AWAY</div>
-                        </div>
-                      </div>
+                    {/* Verdict Badge - Dynamic headline */}
+                    <VerdictBadge
+                      prediction={prediction}
+                      homeTeam={match.homeTeam}
+                      awayTeam={match.awayTeam}
+                    />
 
-                      {/* Pie Chart */}
-                      <ResponsiveContainer width="100%" height={200}>
-                        <PieChart>
-                          <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
-                            paddingAngle={2}
-                            dataKey="value"
-                            animationDuration={800}
-                          >
-                            {chartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: '#0a0e1a',
-                              border: '1px solid #00f0ff',
-                              borderRadius: '8px',
-                              color: '#fff'
-                            }}
-                          />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
+                    {/* Score Heatmap - Visual matrix of exact scores */}
+                    <ScoreHeatmap expectedGoals={prediction.expectedGoals} />
+
+                    {/* Stat Battle - Tale of the Tape comparison */}
+                    <StatBattle
+                      homeTeam={match.homeTeam}
+                      awayTeam={match.awayTeam}
+                      prediction={prediction}
+                      matchData={matchData}
+                    />
 
                     {/* Tactical Radar */}
                     {prediction.radarData && (
@@ -163,6 +129,9 @@ const SimulationModal = ({
 
                   {/* RIGHT COLUMN - Controls & Insights */}
                   <div className="space-y-6">
+
+                    {/* Confidence Meter - Algorithm certainty */}
+                    <ConfidenceMeter prediction={prediction} />
 
                     {/* Tactical Controls */}
                     <div className="bg-cyber-dark/30 rounded-xl p-6 border border-neon-teal/20">
