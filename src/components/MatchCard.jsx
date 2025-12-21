@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { getMatchPredictionData } from '../api';
+import { getMatchPredictionData } from '../services/footballApi';
 import { predictMatch } from '../predictionEngine';
 import { useSimulation, calculateModifiers } from '../context/SimulationContext';
 import SimulationControls from './SimulationControls';
