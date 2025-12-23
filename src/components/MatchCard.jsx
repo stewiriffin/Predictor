@@ -54,12 +54,8 @@ const MatchCard = ({ match, competitionCode }) => {
     };
   }, [match.utcDate]);
 
-  /**
-   * Run prediction with current simulation parameters - Memoized
-   */
   const runPrediction = useCallback(async () => {
     if (!matchData) {
-      // First time - fetch data
       setLoading(true);
       setError(null);
 
@@ -89,7 +85,6 @@ const MatchCard = ({ match, competitionCode }) => {
         setLoading(false);
       }
     } else {
-      // Re-calculate with new modifiers (instant, no loading)
       const modifiers = calculateModifiers(simulation);
       const predictionResult = predictMatch(
         matchData.homeStats,
@@ -102,7 +97,6 @@ const MatchCard = ({ match, competitionCode }) => {
     }
   }, [matchData, match, competitionCode, simulation]);
 
-  // Re-run prediction when simulation parameters change
   useEffect(() => {
     if (matchData) {
       runPrediction();
@@ -117,7 +111,6 @@ const MatchCard = ({ match, competitionCode }) => {
     }
   }, [prediction, runPrediction]);
 
-  // Memoize chart data to avoid recalculation
   const chartData = useMemo(() => {
     if (!prediction) return [];
     return [
@@ -129,7 +122,6 @@ const MatchCard = ({ match, competitionCode }) => {
 
   const COLORS = useMemo(() => ['#00f0ff', '#ffff00', '#ff00ff'], []);
 
-  // Volatility indicators
   const volatility = useMemo(() => {
     if (!prediction) return null;
 
@@ -137,7 +129,6 @@ const MatchCard = ({ match, competitionCode }) => {
     const isLock = maxProb > 70;
     const isCoinFlip = prediction.homeWin >= 40 && prediction.homeWin <= 60;
 
-    // Upset alert: underdog has better form
     const isUpsetAlert = matchData &&
       prediction.awayWin > prediction.homeWin &&
       (matchData.awayStats?.form || '').length > 0 &&
@@ -146,7 +137,6 @@ const MatchCard = ({ match, competitionCode }) => {
     return { isLock, isCoinFlip, isUpsetAlert };
   }, [prediction, matchData]);
 
-  // Value detection - check if any bookie odds provide value
   const valueDetection = useMemo(() => {
     if (!prediction?.fairOdds || !bookieOdds.home) return null;
 
@@ -167,13 +157,11 @@ const MatchCard = ({ match, competitionCode }) => {
       exit={{ opacity: 0, y: -20 }}
       className="relative"
     >
-      {/* Main Card - Cyberpunk Style */}
       <div className={`relative bg-gradient-to-br from-cyber-dark via-cyber-slate to-cyber-dark backdrop-blur-xl rounded-2xl p-6 shadow-2xl border transition-all duration-300 ${
         valueDetection?.hasAnyValue
           ? 'border-yellow-500/60 shadow-yellow-500/20 ring-2 ring-yellow-500/30'
           : 'border-neon-teal/30 hover:border-neon-teal/60'
       }`}>
-        {/* Value Badge */}
         {valueDetection?.hasAnyValue && (
           <div className="absolute -top-3 -right-3 z-10">
             <motion.div
@@ -187,7 +175,6 @@ const MatchCard = ({ match, competitionCode }) => {
           </div>
         )}
 
-        {/* Match Header */}
         <div className="flex justify-between items-center mb-4">
           <span className="text-xs text-gray-400 font-mono">
             {formattedDate.date}
@@ -197,9 +184,7 @@ const MatchCard = ({ match, competitionCode }) => {
           </span>
         </div>
 
-        {/* Teams Display */}
         <div className="grid grid-cols-3 gap-4 items-center mb-6">
-          {/* Home Team */}
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 mb-2 bg-gradient-to-br from-dim-teal to-cyber-slate rounded-full p-3 flex items-center justify-center ring-2 ring-neon-teal/30">
               {homeTeam.crest ? (
@@ -210,7 +195,7 @@ const MatchCard = ({ match, competitionCode }) => {
                   loading="lazy"
                 />
               ) : (
-                <span className="text-2xl">⚽</span>
+                <span className="text-2xl font-bold">O</span>
               )}
             </div>
             <span className="text-center font-bold text-sm text-neon-teal">
@@ -218,7 +203,6 @@ const MatchCard = ({ match, competitionCode }) => {
             </span>
           </div>
 
-          {/* VS Divider */}
           <div className="flex items-center justify-center">
             <motion.div
               animate={{
@@ -236,7 +220,6 @@ const MatchCard = ({ match, competitionCode }) => {
             </motion.div>
           </div>
 
-          {/* Away Team */}
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 mb-2 bg-gradient-to-br from-dim-magenta to-cyber-slate rounded-full p-3 flex items-center justify-center ring-2 ring-neon-magenta/30">
               {awayTeam.crest ? (
@@ -247,7 +230,7 @@ const MatchCard = ({ match, competitionCode }) => {
                   loading="lazy"
                 />
               ) : (
-                <span className="text-2xl">⚽</span>
+                <span className="text-2xl font-bold">O</span>
               )}
             </div>
             <span className="text-center font-bold text-sm text-neon-magenta">
@@ -256,12 +239,10 @@ const MatchCard = ({ match, competitionCode }) => {
           </div>
         </div>
 
-        {/* Venue */}
         <div className="text-center text-xs text-gray-500 mb-4 font-mono">
-          📍 {match.venue || 'Venue TBD'}
+          [Venue] {match.venue || 'Venue TBD'}
         </div>
 
-        {/* Volatility Indicators */}
         {volatility && (
           <div className="flex justify-center gap-2 mb-4">
             {volatility.isLock && (
@@ -285,7 +266,6 @@ const MatchCard = ({ match, competitionCode }) => {
           </div>
         )}
 
-        {/* Fair Odds Display */}
         {prediction?.fairOdds && (
           <div className="mb-4 p-3 bg-neon-teal/10 rounded-lg border border-neon-teal/30">
             <div className="text-xs text-gray-400 font-mono mb-2 text-center">MODEL FAIR ODDS</div>
@@ -306,7 +286,6 @@ const MatchCard = ({ match, competitionCode }) => {
           </div>
         )}
 
-        {/* Bookmaker Odds Input */}
         {prediction && (
           <div className="mb-4">
             <div className="text-xs text-gray-400 font-mono mb-2 text-center">
@@ -352,13 +331,12 @@ const MatchCard = ({ match, competitionCode }) => {
             </div>
             {valueDetection?.hasAnyValue && (
               <div className="mt-2 text-center text-xs text-yellow-400 font-mono">
-                ⚡ Value detected! Bookie odds higher than model odds
+                [VALUE] Bookie odds higher than model odds
               </div>
             )}
           </div>
         )}
 
-        {/* Simulation Button */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -379,13 +357,12 @@ const MatchCard = ({ match, competitionCode }) => {
               ANALYZING...
             </span>
           ) : prediction ? (
-            '🔮 VIEW RESULTS'
+            'VIEW RESULTS'
           ) : (
-            '⚡ RUN SIMULATION'
+            'RUN SIMULATION'
           )}
         </motion.button>
 
-        {/* Error Display */}
         {error && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
@@ -396,7 +373,6 @@ const MatchCard = ({ match, competitionCode }) => {
           </motion.div>
         )}
 
-        {/* Loading Skeleton */}
         {loading && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -408,7 +384,6 @@ const MatchCard = ({ match, competitionCode }) => {
         )}
       </div>
 
-      {/* Simulation Modal */}
       <ErrorBoundary onReset={() => setModalOpen(false)}>
         <SimulationModal
           isOpen={modalOpen}

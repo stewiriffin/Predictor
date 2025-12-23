@@ -21,35 +21,35 @@ export const LEAGUES = {
     id: 2021,
     name: 'Premier League',
     country: 'England',
-    emblem: '🏴󠁧󠁢󠁥󠁮󠁧󠁿'
+    emblem: 'ENG'
   },
   LA_LIGA: {
     code: 'PD',
     id: 2014,
     name: 'La Liga',
     country: 'Spain',
-    emblem: '🇪🇸'
+    emblem: 'ESP'
   },
   BUNDESLIGA: {
     code: 'BL1',
     id: 2002,
     name: 'Bundesliga',
     country: 'Germany',
-    emblem: '🇩🇪'
+    emblem: 'GER'
   },
   SERIE_A: {
     code: 'SA',
     id: 2019,
     name: 'Serie A',
     country: 'Italy',
-    emblem: '🇮🇹'
+    emblem: 'ITA'
   },
   CHAMPIONS_LEAGUE: {
     code: 'CL',
     id: 2001,
     name: 'Champions League',
     country: 'Europe',
-    emblem: '⭐'
+    emblem: 'UCL'
   }
 };
 

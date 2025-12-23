@@ -1,4 +1,4 @@
-# ⚽ ProMatch Predictor
+# ProMatch Predictor
 
 **Production-Grade Football Match Prediction Engine powered by Poisson Distribution Analytics**
 
@@ -6,7 +6,7 @@ A sophisticated React application that provides real-time football match predict
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
 ### Core Capabilities
 - **Real Poisson Distribution Algorithm**: No mock data or RNG—predictions based on legitimate probability theory
@@ -18,15 +18,15 @@ A sophisticated React application that provides real-time football match predict
 - **Real-Time Data**: Fetches live data from football-data.org API
 
 ### Supported Competitions
-- 🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League
-- 🇪🇸 La Liga
-- 🇩🇪 Bundesliga
-- 🇮🇹 Serie A
-- ⭐ Champions League
+- Premier League
+- La Liga
+- Bundesliga
+- Serie A
+- Champions League
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 16+ and npm
@@ -53,7 +53,7 @@ Visit `http://localhost:5173` in your browser.
 
 ---
 
-## 🔑 API Key Setup (CRITICAL)
+## API Key Setup (CRITICAL)
 
 ### Option 1: Environment Variable (Recommended)
 
@@ -79,7 +79,7 @@ const API_KEY = import.meta.env.VITE_API_KEY || 'YOUR_KEY_HERE';
 
 ---
 
-## 📁 Project Architecture
+## Project Architecture
 
 ```
 predictor/
@@ -100,7 +100,7 @@ predictor/
 
 ---
 
-## 🧠 The Poisson Prediction Engine
+## The Poisson Prediction Engine
 
 ### Mathematical Foundation
 
@@ -172,13 +172,13 @@ P(X = k) = (λ^k × e^(-λ)) / k!
 
 ---
 
-## 💾 Advanced Caching System
+## Advanced Caching System
 
 ### Why Caching Matters
 
 Football-data.org **free tier limits:**
-- ✅ 10 requests per minute
-- ✅ 100+ requests per day
+- 10 requests per minute
+- 100+ requests per day
 
 Without caching, you'd hit the limit quickly. Our `useCachedFetch` hook solves this.
 
@@ -195,12 +195,12 @@ const { data, loading, error, refetch, clearCache } = useCachedFetch(
 ```
 
 **Features:**
-- ✅ Saves API responses to `localStorage`
-- ✅ Automatically expires after 24 hours
-- ✅ Unique cache keys based on URL + options
-- ✅ Handles quota exceeded errors
-- ✅ Provides cache statistics
-- ✅ Manual cache clearing
+- Saves API responses to `localStorage`
+- Automatically expires after 24 hours
+- Unique cache keys based on URL + options
+- Handles quota exceeded errors
+- Provides cache statistics
+- Manual cache clearing
 
 **Cache Structure:**
 ```javascript
@@ -222,7 +222,7 @@ clearAllCache(); // Nuclear option
 
 ---
 
-## 🎨 UI/UX Features
+## UI/UX Features
 
 ### Glassmorphism Design
 
@@ -264,7 +264,7 @@ When you click **"Predict with Poisson"**:
 
 ---
 
-## 🔧 Tech Stack
+## Tech Stack
 
 | Technology | Purpose |
 |-----------|---------|
@@ -277,7 +277,7 @@ When you click **"Predict with Poisson"**:
 
 ---
 
-## 📊 File Breakdown
+## File Breakdown
 
 ### 1. `useCachedFetch.js` (247 lines)
 
@@ -285,11 +285,11 @@ When you click **"Predict with Poisson"**:
 
 ```javascript
 const useCachedFetch = (url, options, cacheTime) => {
-  // ✅ localStorage integration
-  // ✅ Expiry validation
-  // ✅ Quota handling
-  // ✅ Stale-while-revalidate pattern
-  // ✅ Cache cleanup
+  // localStorage integration
+  // Expiry validation
+  // Quota handling
+  // Stale-while-revalidate pattern
+  // Cache cleanup
 };
 ```
 
@@ -334,16 +334,16 @@ export const predictMatch = (homeStats, awayStats, leagueAvg) => {
 **The Oracle Card component**
 
 Features:
-- ✅ Glassmorphism design
-- ✅ Team crest display
-- ✅ Animated VS divider
-- ✅ Oracle button (predict/hide toggle)
-- ✅ Skeleton loader
-- ✅ Recharts pie chart
-- ✅ Confidence badge
-- ✅ Key insights list
-- ✅ Expected goals display
-- ✅ Top 3 likely scores
+- Glassmorphism design
+- Team crest display
+- Animated VS divider
+- Oracle button (predict/hide toggle)
+- Skeleton loader
+- Recharts pie chart
+- Confidence badge
+- Key insights list
+- Expected goals display
+- Top 3 likely scores
 
 ```jsx
 <MatchCard
@@ -359,19 +359,19 @@ Features:
 **Main application with dashboard**
 
 Features:
-- ✅ Animated gradient background
-- ✅ Glassmorphism header
-- ✅ League selector buttons
-- ✅ Cache info panel
-- ✅ Match count display
-- ✅ Grid layout with stagger animation
-- ✅ Error state with setup instructions
-- ✅ No matches state
-- ✅ Footer with attribution
+- Animated gradient background
+- Glassmorphism header
+- League selector buttons
+- Cache info panel
+- Match count display
+- Grid layout with stagger animation
+- Error state with setup instructions
+- No matches state
+- Footer with attribution
 
 ---
 
-## ⚠️ API Rate Limits
+## API Rate Limits
 
 ### Free Tier (football-data.org)
 
@@ -392,7 +392,7 @@ Our caching strategy reduces API calls by ~90%:
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Error: "HTTP 403: The resource you are looking for is restricted"
 
@@ -440,7 +440,7 @@ Try different leagues or check football-data.org status
 
 ---
 
-## 📝 Production Deployment
+## Production Deployment
 
 ### Build for Production
 
@@ -458,15 +458,15 @@ For production (e.g., Vercel, Netlify):
 
 ### Performance Optimizations
 
-- ✅ Code splitting (Vite automatic)
-- ✅ Tree shaking (unused code removed)
-- ✅ Minification (production build)
-- ✅ Gzip compression (deploy platform)
-- ✅ localStorage caching (runtime)
+- Code splitting (Vite automatic)
+- Tree shaking (unused code removed)
+- Minification (production build)
+- Gzip compression (deploy platform)
+- localStorage caching (runtime)
 
 ---
 
-## 🎓 Academic References
+## Academic References
 
 The Poisson model is based on established research:
 
@@ -476,7 +476,7 @@ The Poisson model is based on established research:
 
 ---
 
-## 📄 License
+## License
 
 This project is for **educational and demonstration purposes**.
 
@@ -487,7 +487,7 @@ This project is for **educational and demonstration purposes**.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 This is a demonstration project, but improvements welcome:
 
@@ -498,17 +498,17 @@ This is a demonstration project, but improvements welcome:
 
 ---
 
-## ⭐ Project Highlights
+## Project Highlights
 
-✅ **No Mock Data** - 100% real API integration
-✅ **Real Math** - Legitimate Poisson distribution
-✅ **Production-Ready** - Error handling, loading states, caching
-✅ **Beautiful UI** - Glassmorphism, animations, charts
-✅ **Optimized** - Smart caching respects rate limits
-✅ **Well-Documented** - Comprehensive comments and README
+**No Mock Data** - 100% real API integration
+**Real Math** - Legitimate Poisson distribution
+**Production-Ready** - Error handling, loading states, caching
+**Beautiful UI** - Glassmorphism, animations, charts
+**Optimized** - Smart caching respects rate limits
+**Well-Documented** - Comprehensive comments and README
 
 ---
 
-**Built with ❤️ by a Principal Frontend Engineer & Data Science Enthusiast**
+**Built by a Principal Frontend Engineer & Data Science Enthusiast**
 
 © 2025 ProMatch Predictor • Production-Grade Sports Analytics Platform

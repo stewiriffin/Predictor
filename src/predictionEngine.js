@@ -289,16 +289,15 @@ export const generateInsights = (
     }
   }
 
-  // Modifier-specific insights
   if (modifiers) {
     if (modifiers.home.attackMultiplier < 1.0) {
-      insights.push(`⚠️ Simulation accounts for ${homeName}'s weakened attack (key player absence impact).`);
+      insights.push(`[NOTE] Simulation accounts for ${homeName}'s weakened attack (key player absence impact).`);
     }
     if (modifiers.away.attackMultiplier < 1.0) {
-      insights.push(`⚠️ Simulation accounts for ${awayName}'s weakened attack (key player absence impact).`);
+      insights.push(`[NOTE] Simulation accounts for ${awayName}'s weakened attack (key player absence impact).`);
     }
     if (modifiers.home.defenseMultiplier < 1.0) {
-      insights.push(`🏟️ Home fortress advantage activated - ${homeName}'s defense amplified by crowd support.`);
+      insights.push(`[HOME] Home fortress advantage activated - ${homeName}'s defense amplified by crowd support.`);
     }
   }
 

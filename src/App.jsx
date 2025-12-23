@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Wallet } from 'lucide-react';
+import { Wallet, RefreshCw } from 'lucide-react';
 import MatchCard from './components/MatchCard';
 import BettingSlip from './components/BettingSlip';
 import { SimulationProvider } from './context/SimulationContext';
 import { BettingProvider, useBetting } from './context/BettingContext';
 import { COMPETITIONS, fetchMatches, testConnection } from './services/footballApi';
+import { generateFallbackMatches } from './services/fallbackData';
 
 /**
  * Skeleton Loader for Match Cards - Cyberpunk Style
@@ -46,32 +47,56 @@ function AppContent() {
   const [error, setError] = useState(null);
   const [apiStatus, setApiStatus] = useState(null);
   const [bettingSlipOpen, setBettingSlipOpen] = useState(false);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const { balance, stats } = useBetting();
 
-  // Test API connection on mount
+  // Test API connection on mount and periodically
   useEffect(() => {
-    testConnection().then(result => {
-      setApiStatus(result);
-      if (result.success) {
-        console.log('✅', result.message);
-      } else {
-        console.error('❌ API Error:', result.error);
-      }
-    });
+    const checkConnection = () => {
+      testConnection().then(result => {
+        setApiStatus(result);
+        if (result.success) {
+          console.log('[OK] API Status:', result.message);
+        } else {
+          console.error('[ERROR] API Error:', result.error);
+        }
+      });
+    };
+
+    checkConnection();
+
+    // Re-check connection every 60 seconds
+    const interval = setInterval(checkConnection, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch matches when league changes
   useEffect(() => {
     setLoading(true);
     setError(null);
+    setUsingFallback(false);
 
     fetchMatches(selectedLeague.code)
       .then(data => {
-        setMatches(data);
+        if (!data || data.length === 0) {
+          console.warn('[WARNING] No matches from API - Using fallback data');
+          const fallbackMatches = generateFallbackMatches(selectedLeague.code);
+          setMatches(fallbackMatches);
+          setUsingFallback(true);
+        } else {
+          setMatches(data);
+          setUsingFallback(false);
+        }
         setLoading(false);
       })
       .catch(err => {
+        console.error('[ERROR] Fatal error fetching matches:', err.message);
+
+        console.warn('[RETRY] Loading fallback data due to error');
+        const fallbackMatches = generateFallbackMatches(selectedLeague.code);
+        setMatches(fallbackMatches);
+        setUsingFallback(true);
         setError(err.message);
         setLoading(false);
       });
@@ -81,9 +106,34 @@ function AppContent() {
     setSelectedLeague(league);
   };
 
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+
+    // Force re-fetch
+    fetchMatches(selectedLeague.code)
+      .then(data => {
+        if (!data || data.length === 0) {
+          const fallbackMatches = generateFallbackMatches(selectedLeague.code);
+          setMatches(fallbackMatches);
+          setUsingFallback(true);
+        } else {
+          setMatches(data);
+          setUsingFallback(false);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        const fallbackMatches = generateFallbackMatches(selectedLeague.code);
+        setMatches(fallbackMatches);
+        setUsingFallback(true);
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyber-darker via-cyber-dark to-cyber-darker">
-      {/* Animated Cyberpunk Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
           animate={{
@@ -104,7 +154,6 @@ function AppContent() {
           }}
         />
 
-        {/* Grid Pattern */}
         <div
           className="absolute inset-0 opacity-5"
           style={{
@@ -114,11 +163,9 @@ function AppContent() {
         />
       </div>
 
-      {/* Header - Cyberpunk Style */}
       <header className="relative backdrop-blur-xl bg-cyber-dark/50 shadow-2xl border-b border-neon-teal/30">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            {/* Logo and Title */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -134,9 +181,9 @@ function AppContent() {
                   ]
                 }}
                 transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                className="text-5xl"
+                className="text-5xl font-bold text-neon-teal"
               >
-                ⚽
+                O
               </motion.div>
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-teal via-neon-cyan to-neon-magenta bg-clip-text text-transparent font-mono">
@@ -148,7 +195,6 @@ function AppContent() {
               </div>
             </motion.div>
 
-            {/* League Selector */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -175,15 +221,34 @@ function AppContent() {
             </motion.div>
           </div>
 
-          {/* API Status & Wallet Button */}
-          <div className="mt-4 flex items-center justify-between">
-            {apiStatus && (
-              <div className={`text-xs font-mono ${apiStatus.success ? 'text-neon-teal' : 'text-red-400'}`}>
-                API_STATUS: {apiStatus.success ? '✅ CONNECTED' : '❌ ' + apiStatus.error}
-              </div>
-            )}
+          <div className="mt-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {apiStatus && (
+                <div className={`text-xs font-mono ${apiStatus.success ? 'text-neon-teal' : 'text-red-400'}`}>
+                  API_STATUS: {apiStatus.success ? '[OK] CONNECTED' : '[ERROR] ' + apiStatus.error}
+                </div>
+              )}
 
-            {/* Wallet Button */}
+              {usingFallback && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="flex items-center gap-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg px-3 py-1"
+                >
+                  <span className="text-yellow-400 text-xs font-mono font-bold">
+                    [!] DEMO MODE
+                  </span>
+                  <button
+                    onClick={handleRetry}
+                    className="text-yellow-400 hover:text-yellow-300 transition-colors"
+                    title="Retry API connection"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                  </button>
+                </motion.div>
+              )}
+            </div>
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -202,9 +267,7 @@ function AppContent() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="relative container mx-auto px-4 py-8">
-        {/* League Info Banner */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -231,7 +294,6 @@ function AppContent() {
           </div>
         </motion.div>
 
-        {/* Loading State */}
         {loading && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -244,51 +306,34 @@ function AppContent() {
           </motion.div>
         )}
 
-        {/* Error State */}
-        {error && (
+        {error && usingFallback && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-gradient-to-br from-red-900/30 to-red-950/30 backdrop-blur-xl border border-red-500/50 rounded-2xl p-8 text-center"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4"
           >
-            <div className="text-6xl mb-4">⚠️</div>
-            <h3 className="text-2xl font-bold text-red-300 mb-3 font-mono">
-              ERROR: API_CONNECTION_FAILED
-            </h3>
-            <p className="text-red-200 mb-6 max-w-2xl mx-auto font-mono text-sm">{error}</p>
-
-            <div className="bg-cyber-dark/50 rounded-xl p-6 text-left max-w-2xl mx-auto mb-6 border border-red-500/30">
-              <p className="font-bold text-neon-teal mb-3 font-mono">
-                [TROUBLESHOOTING]:
-              </p>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-300 font-mono">
-                <li>Try selecting a different league (Bundesliga or Eredivisie work best with free tier)</li>
-                <li>Premier League requires a paid subscription</li>
-                <li>Check your API key at{' '}
-                  <a
-                    href="https://www.football-data.org/client/register"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-neon-cyan hover:underline"
-                  >
-                    football-data.org
-                  </a>
-                </li>
-                <li>Free tier: 10 requests/minute</li>
-              </ul>
+            <div className="flex items-start gap-3">
+              <div className="text-2xl font-bold text-yellow-400">[!]</div>
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-yellow-400 mb-1 font-mono">
+                  API CONNECTION ISSUE - USING DEMO DATA
+                </h3>
+                <p className="text-yellow-200/80 text-xs font-mono mb-2">{error}</p>
+                <p className="text-gray-400 text-xs font-mono">
+                  The app is running with realistic sample matches. Predictions will work normally.
+                </p>
+              </div>
+              <button
+                onClick={handleRetry}
+                className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/50 text-yellow-400 rounded-lg font-bold text-xs transition-all font-mono"
+              >
+                RETRY API
+              </button>
             </div>
-
-            <button
-              onClick={() => setError(null)}
-              className="px-6 py-3 bg-gradient-to-r from-neon-teal to-neon-cyan hover:from-neon-cyan hover:to-neon-teal text-cyber-dark rounded-xl font-bold transition-all shadow-lg shadow-neon-teal/30 font-mono"
-            >
-              [TRY DIFFERENT LEAGUE]
-            </button>
           </motion.div>
         )}
 
-        {/* Matches Grid */}
-        {!loading && !error && matches.length > 0 && (
+        {!loading && matches.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -313,14 +358,13 @@ function AppContent() {
           </motion.div>
         )}
 
-        {/* No Matches State */}
-        {!loading && !error && matches.length === 0 && (
+        {!loading && !usingFallback && matches.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-center py-20"
           >
-            <div className="text-6xl mb-4">📅</div>
+            <div className="text-6xl mb-4 font-bold text-gray-500">[ ]</div>
             <p className="text-gray-400 text-xl font-mono">
               NO_FIXTURES_SCHEDULED: {selectedLeague.name}
             </p>
@@ -331,7 +375,6 @@ function AppContent() {
         )}
       </main>
 
-      {/* Footer */}
       <footer className="relative backdrop-blur-xl bg-cyber-dark/30 border-t border-neon-teal/30 mt-16">
         <div className="container mx-auto px-4 py-6">
           <div className="text-center space-y-2 font-mono">
@@ -357,15 +400,11 @@ function AppContent() {
         </div>
       </footer>
 
-      {/* Betting Slip Drawer */}
       <BettingSlip isOpen={bettingSlipOpen} onClose={() => setBettingSlipOpen(false)} />
     </div>
   );
 }
 
-/**
- * Main App Component wrapped with providers
- */
 function App() {
   return (
     <BettingProvider>
